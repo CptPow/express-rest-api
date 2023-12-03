@@ -17,12 +17,12 @@ module.exports = router
     res.status(200).json(posts);
   })
 
-  .get("/:id", (req, res) => {
+  .get("/:id", (req, res, next) => {
     const post = posts.find((p) => p.id === parseInt(req.params.id));
     if (post) {
       res.status(200).json(post);
     } else {
-      return res.json({ status: 404, message: "id non trovato" });
+      return next();
     }
   })
 
@@ -33,7 +33,7 @@ module.exports = router
     if (post) {
         res.status(200).json(post)
     } else {
-        res.status(404).send("Post non trovato")
+        res.json({status: 404, message: "id non trovato"})
     }
   })
 
@@ -41,10 +41,30 @@ module.exports = router
     paramsController(req, res);
   })
 
-  .patch("/", (req, res) => {
-    paramsController(req, res);
+  .patch("/:param", (req, res) => {
+    let post = posts.find((p) => p.id === parseInt(req.params.param))
+
+    if(!post) {
+      post = posts.find((p) => p.slug === parseInt(req.params.param))
+    }
+
+    if(post) {
+      return res.status(200).json(`Post con id: ${post.id} aggiornato`)
+    } else {
+      res.json({status : 404, message: "id o slug non trovato"})
+    }
   })
 
-  .delete("/", (req, res) => {
-    paramsController(req, res);
+  .delete("/:param", (req, res) => {
+    let post = posts.find((p) => p.id === parseInt(req.params.param))
+
+    if(!post) {
+      post = posts.find((p) => p.slug === parseInt(req.params.param))
+    }
+
+    if(post) {
+      return res.status(200).json(`Post con id: ${post.id} eliminato`)
+    } else {
+      res.json({status : 404, message: "id o slug non trovato"})
+    }
   });
